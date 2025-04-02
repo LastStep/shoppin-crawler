@@ -27,3 +27,8 @@ Available options:
 - `--crawler` or `-c`: Specify a single crawler to run (e.g., virgio, westside)
 - `--all` or `-a`: Run all available crawlers
 - `--workers` or `-w`: Number of parallel workers when running all crawlers (default: 3)
+
+
+## Known Issues
+
+- **Nykaa Crawler**: Currently failing due to user-agent header restrictions. The api blocks requests with default user-agent headers.

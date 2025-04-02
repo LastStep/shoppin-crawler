@@ -7,8 +7,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from time import sleep
 from src.utils.logger_config import logger
-from user_agent import generate_user_agent
-
+from fake_useragent import UserAgent
 
 class Product(BaseModel):
     """
@@ -57,7 +56,6 @@ class BasePlatformCrawler(ABC):
         # 'Connection': 'keep-alive',
         # 'Dnt': '1',  # Do Not Track
         'content-type': 'application/json',
-        'User-Agent': generate_user_agent(os=("mac", "win"))
     }
 
     DEFAULT_COOKIES = {}
@@ -82,9 +80,11 @@ class BasePlatformCrawler(ABC):
         self.proxy_list = proxy_list or []
         self.session = requests.Session()
         self.request_count = 0
-        logger.info(f"Initializing {self.platform_name} crawler")
-
+        self.ua = UserAgent(browsers=['Edge', 'Chrome', 'Firefox', 'Safari'], os=['Windows', 'Linux', 'Mac OS X'])
+        self.DEFAULT_HEADERS['User-Agent'] = self.ua.getRandom["useragent"]
         self.data_saved = False
+
+        logger.info(f"Initializing {self.platform_name} crawler")
     
     def safe_run(self):
         """
@@ -98,16 +98,11 @@ class BasePlatformCrawler(ABC):
         finally:
             self.output_data()
 
-    def get_request_headers(self):
+    def update_user_agent(self):
         """
         Get headers for the request, with optional user agent rotation
         """
-        headers = self.DEFAULT_HEADERS.copy()
-
-        if self.USER_AGENT_ROTATION:
-            headers['User-Agent'] = generate_user_agent(os=("mac", "win"))
-            print(headers['User-Agent'])
-        return headers
+        self.DEFAULT_HEADERS['User-Agent'] = self.ua.getRandom["useragent"]
 
     @abstractmethod
     def run(self):
@@ -181,10 +176,9 @@ class BasePlatformCrawler(ABC):
                 # Randomize delay to appear more human-like
                 jittered_delay = self.DELAY * (0.5 + random.random())
 
-                headers = self.get_request_headers()
                 if "headers" in kwargs:
-                    headers.update(kwargs["headers"])
-                kwargs["headers"] = headers
+                    self.DEFAULT_HEADERS.update(kwargs["headers"])
+                kwargs["headers"] = self.DEFAULT_HEADERS
                 
                 kwargs["cookies"] = self.DEFAULT_COOKIES
 
@@ -195,6 +189,8 @@ class BasePlatformCrawler(ABC):
                 if self.check_error(response):
                     logger.warning(f"Request failed (attempt {retry_count + 1}/{self.MAX_RETRIES})")
                     retry_count += 1
+                    if self.USER_AGENT_ROTATION:
+                        self.update_user_agent()
                     sleep(self.DELAY * (retry_count + 1))  # Exponential backoff
                     continue
                 
