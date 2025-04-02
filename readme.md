@@ -1,4 +1,4 @@
-# Shopping Assignment
+# shoppin.app Assignment
 
 ## Installation
 
@@ -28,6 +28,12 @@ Available options:
 - `--all` or `-a`: Run all available crawlers
 - `--workers` or `-w`: Number of parallel workers when running all crawlers (default: 3)
 
+Available Crawlers:
+- `virgio` 
+- `westside`
+- `nykaafashion` 
+- `tatacliq` 
+- `inmyprime`
 
 ## Known Issues
 
