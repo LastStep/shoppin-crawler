@@ -7,6 +7,11 @@ from src.base import CrawlerRegistry
 from src.platforms import *
 from src.utils.logger_config import logger
 
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
+
+def ensure_output_dir():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    logger.info(f"Output directory ensured at: {OUTPUT_DIR}")
 
 def run_crawler(crawler_name):
     try:
@@ -27,6 +32,7 @@ def run_crawler(crawler_name):
 
 
 def main():
+    ensure_output_dir()
     # Set up argument parser
     parser = argparse.ArgumentParser(description='E-commerce Product URL Crawler')
     group = parser.add_mutually_exclusive_group(required=True)
