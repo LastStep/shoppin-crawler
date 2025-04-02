@@ -1,0 +1,4 @@
+beautifulsoup4==4.13.3
+user-agent==0.1.10
+pandas==2.2.3
+pydantic==2.11.1
